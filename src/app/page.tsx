@@ -61,10 +61,87 @@ export default function Home() {
 
         const dataUrl = await cardRef.current.exportImage(outputFormat, scale);
 
-        const link = document.createElement("a");
-        link.download = `post-card-${width}x${height}.${outputFormat}`;
-        link.href = dataUrl;
-        link.click();
+        // Detect iOS devices
+        const isIOS =
+          /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+          (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+
+        if (isIOS) {
+          // For iOS: Open image in new tab with instructions
+          const newWindow = window.open();
+          if (newWindow) {
+            newWindow.document.write(`
+              <html>
+                <head>
+                  <title>Your Post Card</title>
+                  <meta name="viewport" content="width=device-width, initial-scale=1">
+                  <style>
+                    body { 
+                      margin: 0; 
+                      padding: 20px; 
+                      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+                      background: #f5f5f5;
+                      text-align: center;
+                    }
+                    .container {
+                      max-width: 600px;
+                      margin: 0 auto;
+                      background: white;
+                      border-radius: 12px;
+                      padding: 20px;
+                      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                    }
+                    img { 
+                      max-width: 100%; 
+                      height: auto; 
+                      border-radius: 8px;
+                      margin: 20px 0;
+                    }
+                    .instructions {
+                      background: #e6f7ff;
+                      padding: 15px;
+                      border-radius: 8px;
+                      margin: 15px 0;
+                      border-left: 4px solid #1890ff;
+                    }
+                    .steps {
+                      text-align: left;
+                      margin: 10px 0;
+                    }
+                  </style>
+                </head>
+                <body>
+                  <div class="container">
+                    <h2>🎉 Your Post Card is Ready!</h2>
+                    <img src="${dataUrl}" alt="Post Card" />
+                    
+                    <div class="instructions">
+                      <h3>📱 How to save on iOS:</h3>
+                      <div class="steps">
+                        <p><strong>1.</strong> Press and hold the image above</p>
+                        <p><strong>2.</strong> Select "Save to Photos" or "Download Image"</p>
+                        <p><strong>3.</strong> The image will be saved to your Photos app</p>
+                      </div>
+                    </div>
+                    
+                    <p style="color: #666; font-size: 14px;">
+                      Resolution: ${width}×${height}px | Format: ${outputFormat.toUpperCase()}
+                    </p>
+                  </div>
+                </body>
+              </html>
+            `);
+            newWindow.document.close();
+          }
+        } else {
+          // For desktop and Android: Use standard download
+          const link = document.createElement("a");
+          link.download = `post-card-${width}x${height}.${outputFormat}`;
+          link.href = dataUrl;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
       } catch (error) {
         console.error("Download error:", error);
         alert("Download failed. Please try again.");
