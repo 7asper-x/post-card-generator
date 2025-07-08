@@ -1,9 +1,14 @@
 "use client";
 import React, { useState, useRef } from "react";
-import { PostCard, fontOptions } from "../components/PostCard";
+import {
+  PostCardCanvas,
+  PostCardCanvasRef,
+} from "../components/PostCardCanvas";
+import { fontOptions } from "../components/PostCard";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
+import { Slider } from "../components/ui/slider";
 import {
   Select,
   SelectContent,
@@ -12,7 +17,6 @@ import {
   SelectValue,
 } from "../components/ui/select";
 import { Icons } from "../components/ui/icons";
-import domtoimage from "dom-to-image";
 
 export default function Home() {
   const [title, setTitle] = useState("");
@@ -28,8 +32,11 @@ export default function Home() {
   const [contentSize, setContentSize] = useState(16);
   const [outputFormat, setOutputFormat] = useState<"png" | "jpg">("png");
   const [locale, setLocale] = useState<"en" | "zh">("en");
+  const [exportResolution, setExportResolution] = useState<
+    "1x" | "2x" | "3x" | "4x"
+  >("3x");
   const [isDownloading, setIsDownloading] = useState(false);
-  const cardRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<PostCardCanvasRef>(null);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -46,33 +53,18 @@ export default function Home() {
     if (cardRef.current) {
       setIsDownloading(true);
       try {
-        const scale = 1;
+        const scale = parseInt(exportResolution.replace("x", ""));
         const baseWidth = 400;
         const baseHeight = imageSize === "3:4" ? 534 : 400;
         const width = baseWidth * scale;
         const height = baseHeight * scale;
-        const originalStyle = cardRef.current.getAttribute("style") || "";
-        // Temporarily set export size/styles on the real card
-        cardRef.current.style.width = `${width}px`;
-        cardRef.current.style.height = `${height}px`;
-        cardRef.current.style.maxWidth = "unset";
-        cardRef.current.style.maxHeight = "unset";
-        cardRef.current.style.boxSizing = "border-box";
-        cardRef.current.style.padding = `${24 * scale}px`;
 
-        const dataUrl = await domtoimage.toPng(cardRef.current, {
-          quality: 1.0,
-          bgcolor: undefined,
-          width,
-          height,
-          style: { width: `${width}px`, height: `${height}px` },
-        });
+        const dataUrl = await cardRef.current.exportImage(outputFormat, scale);
+
         const link = document.createElement("a");
-        link.download = `post-card.png`;
+        link.download = `post-card-${width}x${height}.${outputFormat}`;
         link.href = dataUrl;
         link.click();
-        // Restore original style
-        cardRef.current.setAttribute("style", originalStyle);
       } catch (error) {
         console.error("Download error:", error);
         alert("Download failed. Please try again.");
@@ -187,13 +179,13 @@ export default function Home() {
                 <Label className="font-semibold text-emerald-700">
                   Title Size: {titleSize}px
                 </Label>
-                <input
-                  type="range"
-                  min="16"
-                  max="48"
-                  value={titleSize}
-                  onChange={(e) => setTitleSize(Number(e.target.value))}
-                  className="w-full mt-1"
+                <Slider
+                  value={[titleSize]}
+                  onValueChange={(val) => setTitleSize(val[0])}
+                  min={16}
+                  max={48}
+                  step={1}
+                  className="w-full mt-2"
                 />
               </div>
 
@@ -201,13 +193,13 @@ export default function Home() {
                 <Label className="font-semibold text-emerald-700">
                   Content Size: {contentSize}px
                 </Label>
-                <input
-                  type="range"
-                  min="12"
-                  max="32"
-                  value={contentSize}
-                  onChange={(e) => setContentSize(Number(e.target.value))}
-                  className="w-full mt-1"
+                <Slider
+                  value={[contentSize]}
+                  onValueChange={(val) => setContentSize(val[0])}
+                  min={12}
+                  max={32}
+                  step={1}
+                  className="w-full mt-2"
                 />
               </div>
             </div>
@@ -217,7 +209,7 @@ export default function Home() {
                 Background Color
               </Label>
               <div className="flex gap-2 mt-1">
-                <input
+                <Input
                   type="color"
                   value={backgroundColor}
                   onChange={(e) => setBackgroundColor(e.target.value)}
@@ -236,14 +228,13 @@ export default function Home() {
               <Label className="font-semibold text-emerald-700">
                 Background Opacity: {Math.round(backgroundOpacity * 100)}%
               </Label>
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.1"
-                value={backgroundOpacity}
-                onChange={(e) => setBackgroundOpacity(Number(e.target.value))}
-                className="w-full mt-1"
+              <Slider
+                value={[backgroundOpacity]}
+                onValueChange={(val) => setBackgroundOpacity(val[0])}
+                min={0}
+                max={1}
+                step={0.1}
+                className="w-full mt-2"
               />
             </div>
 
@@ -270,22 +261,48 @@ export default function Home() {
               </div>
             </div>
 
-            <div>
-              <Label className="font-semibold text-emerald-700">
-                Output Format
-              </Label>
-              <Select
-                value={outputFormat}
-                onValueChange={(value: "png" | "jpg") => setOutputFormat(value)}
-              >
-                <SelectTrigger className="mt-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="png">PNG</SelectItem>
-                  <SelectItem value="jpg">JPG</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label className="font-semibold text-emerald-700">
+                  Output Format
+                </Label>
+                <Select
+                  value={outputFormat}
+                  onValueChange={(value: "png" | "jpg") =>
+                    setOutputFormat(value)
+                  }
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="png">PNG</SelectItem>
+                    <SelectItem value="jpg">JPG</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label className="font-semibold text-emerald-700">
+                  Export Resolution
+                </Label>
+                <Select
+                  value={exportResolution}
+                  onValueChange={(value: "1x" | "2x" | "3x" | "4x") =>
+                    setExportResolution(value)
+                  }
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1x">1x (400px)</SelectItem>
+                    <SelectItem value="2x">2x (800px)</SelectItem>
+                    <SelectItem value="3x">3x (1200px)</SelectItem>
+                    <SelectItem value="4x">4x (1600px)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
         </div>
@@ -293,7 +310,7 @@ export default function Home() {
         {/* Preview & Download */}
         <div className="flex flex-col items-center gap-4 w-full lg:w-1/2">
           <div className="w-full flex justify-center">
-            <PostCard
+            <PostCardCanvas
               ref={cardRef}
               title={title}
               content={content}
