@@ -155,8 +155,8 @@ export const PostCardCanvas = forwardRef<
         const titleLines = wrapText(
           ctx,
           title,
-          width - padding * 2,
-          titleSize * scaleFactor
+          width - padding * 2
+          // titleSize * scaleFactor
         );
         let titleY = textStartY;
 
@@ -174,8 +174,8 @@ export const PostCardCanvas = forwardRef<
         const contentLines = wrapText(
           ctx,
           content,
-          width - padding * 2,
-          contentSize * scaleFactor
+          width - padding * 2
+          // contentSize * scaleFactor
         );
         let contentY =
           textStartY + titleSize * scaleFactor * 1.2 + 16 * scaleFactor;
@@ -193,8 +193,8 @@ export const PostCardCanvas = forwardRef<
     const wrapText = (
       ctx: CanvasRenderingContext2D,
       text: string,
-      maxWidth: number,
-      lineHeight: number
+      maxWidth: number
+      // lineHeight: number
     ): string[] => {
       const words = text.split(" ");
       const lines: string[] = [];
