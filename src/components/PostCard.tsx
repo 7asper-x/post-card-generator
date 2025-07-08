@@ -10,7 +10,7 @@ interface PostCardProps {
   fontFamily: string;
   titleSize: number;
   contentSize: number;
-  locale?: "en" | "zh";
+  // locale?: "en" | "zh";
 }
 
 const fontOptions = {
@@ -54,7 +54,7 @@ export const PostCard = forwardRef<HTMLDivElement, PostCardProps>(
       fontFamily = "Inter",
       titleSize = 24,
       contentSize = 16,
-      locale = "en",
+      // locale = "en",
     },
     ref
   ) => {

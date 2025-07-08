@@ -86,18 +86,6 @@ export default function Home() {
     setBackgroundImage(undefined);
   };
 
-  // Helper function to convert hex to RGB (keeping for potential future use)
-  const hexToRgb = (hex: string) => {
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result
-      ? {
-          r: parseInt(result[1], 16),
-          g: parseInt(result[2], 16),
-          b: parseInt(result[3], 16),
-        }
-      : null;
-  };
-
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-emerald-50 to-blue-100 p-4">
       <h1 className="text-3xl font-bold mb-6 text-emerald-700 text-center">
@@ -316,7 +304,7 @@ export default function Home() {
               fontFamily={fontFamily}
               titleSize={titleSize}
               contentSize={contentSize}
-              locale={locale}
+              // locale={locale}
             />
           </div>
           <Button
