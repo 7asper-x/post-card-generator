@@ -16,6 +16,7 @@ interface PostCardCanvasProps {
   fontFamily: string;
   titleSize: number;
   contentSize: number;
+  textColor?: string;
   scale?: number;
 }
 
@@ -38,6 +39,7 @@ export const PostCardCanvas = forwardRef<
       fontFamily = "Inter",
       titleSize = 24,
       contentSize = 16,
+      textColor = "#ffffff",
       scale = 1,
     },
     ref
@@ -132,7 +134,7 @@ export const PostCardCanvas = forwardRef<
       ctx.clip();
 
       // Setup text rendering
-      ctx.fillStyle = "#ffffff";
+      ctx.fillStyle = textColor;
       ctx.textAlign = "left";
       ctx.textBaseline = "top";
 
@@ -251,6 +253,7 @@ export const PostCardCanvas = forwardRef<
       fontFamily,
       titleSize,
       contentSize,
+      textColor,
       scale,
     ]);
 

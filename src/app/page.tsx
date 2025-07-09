@@ -26,6 +26,7 @@ export default function Home() {
   );
   const [backgroundColor, setBackgroundColor] = useState("#10b981");
   const [backgroundOpacity, setBackgroundOpacity] = useState(0.8);
+  const [textColor, setTextColor] = useState("#ffffff");
   const [imageSize, setImageSize] = useState<"3:4" | "1:1">("3:4");
   const [fontFamily, setFontFamily] = useState("Inter");
   const [titleSize, setTitleSize] = useState(24);
@@ -317,6 +318,26 @@ export default function Home() {
 
             <div>
               <Label className="font-semibold text-emerald-700">
+                Text Color
+              </Label>
+              <div className="flex gap-2 mt-1">
+                <Input
+                  type="color"
+                  value={textColor}
+                  onChange={(e) => setTextColor(e.target.value)}
+                  className="w-12 h-10 rounded border"
+                />
+                <Input
+                  value={textColor}
+                  onChange={(e) => setTextColor(e.target.value)}
+                  placeholder="#ffffff"
+                  className="flex-1"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label className="font-semibold text-emerald-700">
                 Background Image
               </Label>
               <div className="flex gap-2 mt-1">
@@ -394,6 +415,7 @@ export default function Home() {
               backgroundImage={backgroundImage}
               backgroundColor={backgroundColor}
               backgroundOpacity={backgroundOpacity}
+              textColor={textColor}
               imageSize={imageSize}
               fontFamily={fontFamily}
               titleSize={titleSize}
